@@ -9,14 +9,14 @@
 ;; enables delete-selection-mode to replace marked text on type
 (delete-selection-mode 1)
 
-;; theme
-(load-theme 'wombat t)
-
 ;; add the custom 'lisp' directory to Emacs' load path
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
 ;; load your custom architecture code
 (require 'neoarch-functions)
+
+;; theme (defined under lisp/neoarch-theme.el)
+(require 'neoarch-theme)
 
 ;; disable welmcome screen
 (setq inhibit-startup-screen t)
@@ -182,3 +182,45 @@
 (use-package mise
   :ensure t
   :hook (after-init . global-mise-mode))
+
+;; tree-sitter
+;; markdown-ts-mode is not built into Emacs 30, so install the MELPA package
+;; first. This must come before treesit-auto so that
+;; `treesit-auto-add-to-auto-mode-alist' can pick `markdown-ts-mode' up.
+(use-package markdown-ts-mode
+  :ensure t
+  :mode ("\\.md\\'" . markdown-ts-mode)
+  :defer t
+  :config
+  ;; Markdown needs two grammars (markdown + markdown-inline) from the
+  ;; split_parser branch; treesit-auto's recipe only handles the outer one.
+  (dolist (src '((markdown
+                  . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown"
+                     "split_parser" "tree-sitter-markdown/src"))
+                 (markdown-inline
+                  . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown"
+                     "split_parser" "tree-sitter-markdown-inline/src"))))
+    (add-to-list 'treesit-language-source-alist src))
+  (dolist (lang '(markdown markdown-inline))
+    (unless (treesit-language-available-p lang)
+      (treesit-install-language-grammar lang))))
+
+(use-package treesit-auto
+  :ensure t
+  :custom
+  ;; Install missing grammars silently the first time a matching file is
+  ;; visited. We avoid the eager `treesit-auto-install-all' approach because
+  ;; some upstream grammars (cobol, verilog, ...) are broken and yell on
+  ;; every startup.
+  (treesit-auto-install t)
+  :config
+  ;; Curated allowlist: only these languages get auto-mode-alist entries
+  ;; and lazy installation. Add a symbol here if you start working in a new
+  ;; language; treesit-auto will install the grammar on first file open.
+  (setq treesit-auto-langs
+        '(bash c cpp css cmake dockerfile haskell html
+               javascript json lua make markdown markdown-inline
+               nix php proto python ruby sql toml tsx typescript
+               vue yaml))
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))

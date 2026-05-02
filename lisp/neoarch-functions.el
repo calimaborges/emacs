@@ -43,14 +43,4 @@
   (interactive)
   (find-file (expand-file-name "lisp/" user-emacs-directory)))
 
-;; set theme according to system mode (dark mode vs light mode)
-(defun my/apply-theme (appearance)
-  "Load theme, taking current system APPEARANCE into consideration."
-  (mapc #'disable-theme custom-enabled-themes)
-  (pcase appearance
-    ('light (load-theme 'tango t))
-     ('dark (load-theme 'modus-vivendi t))))
-    ;; ('dark (load-theme 'tango t))))
-    (add-hook 'ns-system-appearance-change-functions #'my/apply-theme)
-
 (provide 'neoarch-functions)

@@ -92,7 +92,11 @@
 ;; (font-family-list)
 ;; (set-face-attribute 'default nil :width 'condensed)
 ;; (add-to-list 'default-frame-alist '(font . "Iosevka Fixed-14"))
-(add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono-13"))
+
+(if (eq system-type 'darwin)
+    (add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono-12"))
+  (add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font Mono-10")))
+
 ;; (add-to-list 'default-frame-alist '(font . "3270 Nerd Font Mono-16"))
 ;; (add-to-list 'default-frame-alist '(font . "DepartureMono Nerd Font Mono-14"))
 

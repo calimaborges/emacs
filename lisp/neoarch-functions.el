@@ -43,4 +43,29 @@
   (interactive)
   (find-file (expand-file-name "lisp/" user-emacs-directory)))
 
+(defun my/persp-vterm (&optional new-terminal)
+  "Switch to a vterm buffer for the current perspective.
+If none exists, create one.
+With a prefix (`C-u`), force the creation of a new vterm buffer."
+  (interactive "P")
+  (require 'vterm)
+  (require 'perspective)
+  (let* ((p-name (persp-name (persp-curr)))
+         ;; create a base name for the terminal based on the perspective
+         (base-name (format "*vterm-%s*" p-name))
+         ;; get all buffers currently associated with this perspective
+         (persp-bufs (persp-buffers (persp-curr)))
+
+         ;; filter the list to find only our perspective-specific vterms
+         (existing-vterms (seq-filter (lambda (buf) (string-prefix-p base-name (buffer-name buf)))
+                                       persp-bufs)))
+    (if (or new-terminal (null existing-vterms))
+        ;; create new vterm with an auto-increment name
+        ;; (e.g., *vterm-work*, *vterm-work*<2>)
+        (vterm (generate-new-buffer-name base-name))
+      ;; otherwise, swith to the first existing vterm we found
+      (switch-to-buffer (car existing-vterms)))))
+
+(global-set-key (kbd "C-c t") 'my/persp-vterm)
+
 (provide 'neoarch-functions)

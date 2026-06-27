@@ -1,10 +1,24 @@
-bookmarks
-auto-save-list
-eln-cache
-*~
-elpa
-multisession
-projectile-bookmarks.eld
-transient
-tree-sitter
-.local
+# Ignore everything. This is a allowlist file.
+*
+
+# Allow git to traverse directories
+!*/
+
+# Allowlist configuration files
+!.gitignore
+!.gitmodules
+!init.el
+!early-init.el
+!readme.md
+
+# Allowlist custom configurations
+!lisp/**
+
+# Allowlist packags
+!site-lisp/**
+
+# Remove auto generated files
+*.elc
+*-autoloads.el
+magit-autoloads.el
+.DIR-LOCALS-IGNORED

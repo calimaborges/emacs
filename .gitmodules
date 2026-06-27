@@ -1,0 +1,28 @@
+[submodule "site-lisp/dash"]
+	path = site-lisp/dash
+	url = https://github.com/magnars/dash.el.git
+	ignore = dirty
+[submodule "site-lisp/compat"]
+	path = site-lisp/compat
+	url = https://github.com/emacs-compat/compat.git
+	ignore = dirty
+[submodule "site-lisp/with-editor"]
+	path = site-lisp/with-editor
+	url = https://github.com/magit/with-editor.git
+	ignore = dirty
+[submodule "site-lisp/transient"]
+	path = site-lisp/transient
+	url = https://github.com/magit/transient.git
+	ignore = dirty
+[submodule "site-lisp/magit"]
+	path = site-lisp/magit
+	url = https://github.com/magit/magit.git
+	ignore = dirty
+[submodule "site-lisp/cond-let"]
+	path = site-lisp/cond-let
+	url = https://github.com/tarsius/cond-let.git
+	ignore = dirty
+[submodule "site-lisp/llama"]
+	path = site-lisp/llama
+	url = https://github.com/tarsius/llama.git
+	ignore = dirty

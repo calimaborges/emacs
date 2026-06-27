@@ -67,6 +67,9 @@
             (setq c-basic-offset 4)
             (c-set-offset 'substatement-open 0)))
 
+(setq-default js-ts-mode-indent-offset 2)
+(setq-default typescript-ts-mode-indent-offset 2)
+
 ;; whitespace highlight
 (require 'whitespace)
 
@@ -139,6 +142,8 @@
 (use-package vterm
   :ensure t
   :hook (vterm-mode . (lambda () (display-line-numbers-mode -1))))
+
+(define-key vterm-mode-map (kbd "C-q") #'vterm-send-next-key)
 
 ;; gptel
 (require 'gptel-config)

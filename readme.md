@@ -6,6 +6,9 @@
 
 - https://emacsformacosx.com/
 
+### Mark does not work in macOS
+
+Remember to disable the keymap for changing the keyboard
 
 ### Emacs available in the command line to run make for some packages
 

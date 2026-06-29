@@ -17,5 +17,34 @@ sudo ln -s /Applications/Emacs.app/Contents/MacOS/Emacs /usr/local/bin/emacs
 
 ```bash
 git clone --recurse-submodules https://github.com/calimaborges/emacs.git ~/.config/emacs
-cd ~/.config/emacs/site-lisp/magit && make lisp
+
+# install magit
+cd ~/.config/emacs/site-lisp/magit
+make lisp
+
+# install vterm
+cd site-lisp/vterm
+mkdir -p build
+cd build
+cmake ..
+make
+
+# install projectile
+cd site-lisp/projectile
+emacs -Q --batch -L . -f batch-byte-compile projectile.el
+
+# install perspective
+cd site-lisp/perspective
+make
+
+# install persp-projectile
+cd site-lisp/persp-projectile
+emacs -Q --batch -L . -L ../projectile -L ../perspective -f batch-byte-compile persp-projectile.el
+
+# install mise
+emacs -Q --batch -L site-lisp/inheritenv -f batch-byte-compile site-lisp/inheritenv/inheritenv.el
+emacs -Q --batch -L site-lisp/inheritenv -L site-lisp/mise -f batch-byte-compile site-lisp/mise/mise.el
+
+# install treesit grammars
+emacs --batch -l ~/.config/emacs/init.el -f neoarch-install-ts-grammars
 ```

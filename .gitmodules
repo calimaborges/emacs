@@ -26,3 +26,31 @@
 	path = site-lisp/llama
 	url = https://github.com/tarsius/llama.git
 	ignore = dirty
+[submodule "site-lisp/vterm"]
+	path = site-lisp/vterm
+	url = https://github.com/akermu/emacs-libvterm.git
+	ignore = dirty
+[submodule "site-lisp/projectile"]
+	path = site-lisp/projectile
+	url = https://github.com/bbatsov/projectile.git
+	ignore = dirty
+[submodule "site-lisp/perspective"]
+	path = site-lisp/perspective
+	url = https://github.com/nex3/perspective-el.git
+	ignore = dirty
+[submodule "site-lisp/persp-projectile"]
+	path = site-lisp/persp-projectile
+	url = https://github.com/bbatsov/persp-projectile.git
+	ignore = dirty
+[submodule "site-lisp/inheritenv"]
+	path = site-lisp/inheritenv
+	url = https://github.com/purcell/inheritenv.git
+	ignore = dirty
+[submodule "site-lisp/mise"]
+	path = site-lisp/mise
+	url = https://github.com/liuyinz/mise.el.git
+	ignore = dirty
+[submodule "site-lisp/md-ts-mode"]
+	path = site-lisp/md-ts-mode
+	url = https://github.com/dnouri/md-ts-mode.git
+	ignore = dirty

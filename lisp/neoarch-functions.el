@@ -66,6 +66,17 @@ With a prefix (`C-u`), force the creation of a new vterm buffer."
       ;; otherwise, swith to the first existing vterm we found
       (switch-to-buffer (car existing-vterms)))))
 
+(setq neoarch-context-list '(personal tst runeform))
+(defun neoarch-new-project ()
+  "Create a new project."
+  (interactive)
+  (let* ((context (completing-read "Context: " neoarch-context-list))
+         (project (read-string "Project: "))
+         (project-dir (file-name-concat my/projects-root context project)))
+    (make-directory (file-name-as-directory project-dir))
+    (make-empty-file (file-name-concat project-dir ".projectile"))))
+
+(global-set-key (kbd "C-c p n") 'neoarch-new-project)
 (global-set-key (kbd "C-c t") 'my/persp-vterm)
 
 (provide 'neoarch-functions)

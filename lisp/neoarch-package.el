@@ -20,7 +20,6 @@
 
 ;; vterm
 (require 'vterm)
-(global-set-key (kbd "C-c t") 'vterm)
 (add-hook 'vterm-mode-hook (lambda () (display-line-numbers-mode -1)))
 (define-key vterm-mode-map (kbd "C-q") #'vterm-send-next-key)
 

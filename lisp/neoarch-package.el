@@ -16,12 +16,10 @@
 
 ;; magit
 (require 'magit)
-(global-set-key (kbd "C-x g") 'magit-status)
 
 ;; vterm
 (require 'vterm)
 (add-hook 'vterm-mode-hook (lambda () (display-line-numbers-mode -1)))
-(define-key vterm-mode-map (kbd "C-q") #'vterm-send-next-key)
 
 ;; projectile
 (setq projectile-auto-discover t)
@@ -31,18 +29,15 @@
 (setq projectile-indexing-method 'hybrid)
 (dolist (ignore '(".venv" "node_modules"))
   (add-to-list 'projectile-globally-ignored-directories ignore))
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 (projectile-mode +1)
 
 ;; perspective
 (custom-set-variables '(persp-mode-prefix-key (kbd "C-x x")))
 (require 'perspective)
-(global-set-key (kbd "C-x C-b") 'persp-list-buffers)
 (persp-mode +1)
 
 ;; persp-projectile
 (require 'persp-projectile)
-(define-key projectile-command-map (kbd "p") 'projectile-persp-switch-project)
 
 ;; mise
 (require 'mise)

@@ -10,6 +10,7 @@
 !init.el
 !early-init.el
 !readme.md
+!manual.org
 
 # Allowlist custom configurations
 !lisp/**

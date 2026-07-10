@@ -55,7 +55,6 @@ With a prefix (`C-u`), force the creation of a new vterm buffer."
          (base-name (format "*vterm-%s*" p-name))
          ;; get all buffers currently associated with this perspective
          (persp-bufs (persp-buffers (persp-curr)))
-
          ;; filter the list to find only our perspective-specific vterms
          (existing-vterms (seq-filter (lambda (buf) (string-prefix-p base-name (buffer-name buf)))
                                        persp-bufs)))
@@ -76,7 +75,21 @@ With a prefix (`C-u`), force the creation of a new vterm buffer."
     (make-directory (file-name-as-directory project-dir))
     (make-empty-file (file-name-concat project-dir ".projectile"))))
 
-(global-set-key (kbd "C-c p n") 'neoarch-new-project)
-(global-set-key (kbd "C-c t") 'my/persp-vterm)
+(defvar-local neoarch-vterm-saved-exceptions nil
+  "Stores original vterm exceptions when pure passthrough is active.")
+(defun neoarch-vterm-toggle-pure-passthrough ()
+  "Toggle sending absolutely all keys (except C-c) to the terminal."
+  (interactive)
+  (if neoarch-vterm-saved-exceptions
+      (progn
+        (setq vterm-keymap-exceptions neoarch-vterm-saved-exceptions
+              neoarch-vterm-saved-exceptions nil)
+        (message "Exited pure passthrough. Standard Emacs keys restored."))
+    (progn
+      (setq neoarch-vterm-saved-exceptions vterm-keymap-exceptions
+            vterm-keymap-exceptions '("C-c"))
+      (message "Pure passthrough active! All keys sent to terminal (Use C-c to access Emacs.)"))))
+(with-eval-after-load 'vterm
+  (define-key vterm-mode-map (kbd "C-c C-k") #'neoarch-vterm-toggle-pure-passthrough))
 
 (provide 'neoarch-functions)

@@ -126,3 +126,6 @@
 
 ;; packages configuration
 (require 'neoarch-package)
+
+;; keybindings
+(require 'neoarch-keybinding)

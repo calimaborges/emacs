@@ -4,11 +4,18 @@ This is still WIP. Most keybindings are not configured yet.
 
 * Keybinds
 
-| Keybind | Command                   |
-|---------+---------------------------|
-| C-x x o | neoarch-project-open      |
-| C-x x n | neoarch-project-create    |
-| C-x x s | neoarch-project-switch    |
-| C-x x f | neoarch-project-find-file |
-| C-x x g | neoarch-project-grep      |
-| C-x x t | nerarch-project-terminal  |
+|---------+----------------------------------|
+| Keybind | Command                          |
+|---------+----------------------------------|
+| C-x x t | nerarch/project-terminal         |
+| C-x x n | neoarch/project-create           |
+| C-x x o | neoarch/project-open             |
+| C-x x c | neoarch/project-close            |
+| C-x x s | neoarch/project-switch           |
+| C-x x f | neoarch/project-find-file        |
+| C-x x g | neoarch/project-grep             |
+|---------+----------------------------------|
+| C-x g   | neoarch/vc-status                |
+| C-c C-k | neoarch/vterm-toggle-passthrough |
+|---------+----------------------------------|
+

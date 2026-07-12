@@ -12,7 +12,8 @@
   (add-to-list 'load-path (expand-file-name "persp-projectile" site-lisp))
   (add-to-list 'load-path (expand-file-name "inheritenv" site-lisp))
   (add-to-list 'load-path (expand-file-name "mise" site-lisp))
-  (add-to-list 'load-path (expand-file-name "md-ts-mode" site-lisp)))
+  (add-to-list 'load-path (expand-file-name "md-ts-mode" site-lisp))
+  (add-to-list 'load-path (expand-file-name "hl-todo" site-lisp)))
 
 ;; magit
 (require 'magit)
@@ -32,7 +33,7 @@
 (projectile-mode +1)
 
 ;; perspective
-(custom-set-variables '(persp-mode-prefix-key (kbd "C-x x")))
+(custom-set-variables '(persp-suppress-no-prefix-key-warning t))
 (require 'perspective)
 (persp-mode +1)
 
@@ -79,5 +80,8 @@
       (message "Installing tree-sitter grammar for: %s" lang)
       (treesit-install-language-grammar lang)))
   (message "All configured tree-sitter grammars are installed!"))
+
+(require 'hl-todo)
+(add-hook 'prog-mode-hook #'hl-todo-mode)
 
 (provide 'neoarch-package)

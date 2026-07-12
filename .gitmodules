@@ -54,3 +54,7 @@
 	path = site-lisp/md-ts-mode
 	url = https://github.com/dnouri/md-ts-mode.git
 	ignore = dirty
+[submodule "site-lisp/hl-todo"]
+	path = site-lisp/hl-todo
+	url = https://github.com/tarsius/hl-todo
+	ignore = dirty

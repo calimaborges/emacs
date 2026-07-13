@@ -1,3 +1,5 @@
+;;; neoarch-keybinding.el --- global keybindings -*- lexical-binding: t; -*-
+
 (global-set-key (kbd "C-x x t") 'neoarch/project-terminal)
 (global-set-key (kbd "C-x x n") 'neoarch/project-create)
 (global-set-key (kbd "C-x x o") 'neoarch/project-open)

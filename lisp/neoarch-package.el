@@ -1,3 +1,5 @@
+;;; neoarch-package.el --- package setup from site-lisp -*- lexical-binding: t; -*-
+
 (let ((site-lisp (expand-file-name "site-lisp" user-emacs-directory)))
   (add-to-list 'load-path (expand-file-name "dash" site-lisp))
   (add-to-list 'load-path (expand-file-name "compat" site-lisp))

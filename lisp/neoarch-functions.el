@@ -1,6 +1,11 @@
-;;; neoarch-functions.el --- my personal config functions
+;;; neoarch-functions.el --- my personal config functions -*- lexical-binding: t; -*-
 (defvar neoarch/projects-root "~/projects"
   "The root directory containing all profile folders.")
+
+;; Declared special so our `let' overrides bind dynamically (projectile reads
+;; this variable at runtime). Needed under `lexical-binding' when projectile
+;; may not be loaded at byte-compile time.
+(defvar projectile-switch-project-action)
 
 (defun neoarch/get-profiles ()
   "Return a list of profiles directories inside `neoarch/projects-root`."
@@ -77,10 +82,6 @@ With a prefix (`C-u`), force the creation of a new vterm buffer."
 This should match the first key in `neoarch/vterm-passthrough-key`."
   :type 'string
   :group 'neoarch)
-(defvar-local neoarch/vterm-saved-exceptions nil
-  "Stores original vterm exceptions when pure passthrough is active.")
-(defvar neoarch/vterm-passthrough-prefix "C-c"
-  "Prefix to ignore during passthrough. Set via `neoarch/setup-vterm-passhtrough`.")
 (defun neoarch/vterm-setup-passthrough (full-key)
   "Configure and bind vterm passthrough toggle.
 FULL-KEY is the exact binding (e.g., \"C-c C-k\")."

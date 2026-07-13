@@ -1,3 +1,5 @@
+;;; gptel-config.el --- gptel/LLM configuration -*- lexical-binding: t; -*-
+
 (use-package gptel
   :ensure t
   :config

@@ -1,3 +1,5 @@
+;;; neoarch-customization.el --- UI and behavior tweaks -*- lexical-binding: t; -*-
+
 ;; set custom file location and load it
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
     (when (file-exists-p custom-file)

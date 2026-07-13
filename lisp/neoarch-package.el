@@ -14,7 +14,9 @@
   (add-to-list 'load-path (expand-file-name "mise" site-lisp))
   (add-to-list 'load-path (expand-file-name "md-ts-mode" site-lisp))
   (add-to-list 'load-path (expand-file-name "hl-todo" site-lisp))
-  (add-to-list 'load-path (expand-file-name "terraform-ts-mode" site-lisp)))
+  (add-to-list 'load-path (expand-file-name "terraform-ts-mode" site-lisp))
+  (add-to-list 'load-path (expand-file-name "wgrep" site-lisp))
+  (add-to-list 'load-path (expand-file-name "rg" site-lisp)))
 
 ;; magit
 (require 'magit)
@@ -86,5 +88,17 @@
 (add-hook 'prog-mode-hook #'hl-todo-mode)
 
 (require 'terraform-ts-mode)
+
+(require 'eglot)
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs '(terraform-ts-mode . ("mise" "exec" "--" "terraform-ls" "serve"))))
+(add-hook 'terraform-ts-mode-hook #'eglot-ensure)
+(add-hook 'terraform-ts-mode-hook
+          (lambda ()
+            (add-hook 'before-save-hook #'eglot-format-buffer nil t)))
+
+(require 'wgrep)
+
+(require 'rg)
 
 (provide 'neoarch-package)

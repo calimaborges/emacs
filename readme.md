@@ -54,4 +54,18 @@ emacs --batch -l ~/.config/emacs/init.el -f neoarch-install-ts-grammars
 # install hl-todo
 cd site-lisp/hl-todo
 make
+
+# install wgrep
+cd site-lisp/wgrep
+emacs -batch -Q -L . -f batch-byte-compile wgrep-ack.el wgrep-ag.el wgrep-deadgrep.el wgrep-helm.el wgrep-pt.el
+
+# install rg
+cd site-lisp/rg
+emacs -batch -Q -L . -L ../wgrep -f batch-byte-compile *.el
+```
+
+### Pull submodules
+
+```
+git submodule update --init --recursive
 ```

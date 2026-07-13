@@ -61,3 +61,12 @@
 [submodule "site-lisp/terraform-ts-mode"]
 	path = site-lisp/terraform-ts-mode
 	url = https://codeberg.org/ccbash-oss/terraform-ts-mode.git
+	ignore = dirty
+[submodule "site-lisp/rg"]
+	path = site-lisp/rg
+	url = https://github.com/dajva/rg.el
+	ignore = dirty
+[submodule "site-lisp/wgrep"]
+	path = site-lisp/wgrep
+	url = https://github.com/mhayashi1120/Emacs-wgrep.git
+	ignore = dirty

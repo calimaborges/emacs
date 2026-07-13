@@ -38,7 +38,7 @@
    `(region               ((t (:background ,bg-glow :extend t))))
    `(secondary-selection  ((t (:background ,bg-dim))))
    `(highlight            ((t (:background ,bg-glow :foreground ,cyan-bright))))
-   `(hl-line              ((t (:background ,bg-alt :extend t))))
+   `(hl-line              ((t (:background ,black :extend t))))
    `(fringe               ((t (:background ,bg :foreground ,fg-faint))))
    `(vertical-border      ((t (:foreground ,fg-faint))))
    `(window-divider       ((t (:foreground ,fg-faint))))
@@ -66,8 +66,8 @@
    `(minibuffer-prompt    ((t (:foreground ,magenta :weight bold))))
 
    ;; --- line numbers --------------------------------------------------------
-   `(line-number              ((t (:background ,bg :foreground ,fg-faint))))
-   `(line-number-current-line ((t (:background ,bg :foreground ,cyan :weight bold))))
+   `(line-number              ((t (:background ,black :foreground ,fg-faint))))
+   `(line-number-current-line ((t (:background ,black :foreground ,cyan :weight bold))))
 
    ;; --- syntax (font-lock) --------------------------------------------------
    `(font-lock-comment-face        ((t (:foreground ,fg-dim :slant italic))))

@@ -30,10 +30,53 @@
 (column-number-mode 1)
 
 ;; highlight current line
-(global-hl-line-mode -1)
+(global-hl-line-mode 1)
+;; only highlight the line in the selected window, not every window
+(setq hl-line-sticky-flag nil)
 
 ;; display line number in the left
 (global-display-line-numbers-mode 1)
+
+;; dim the background of inactive (non-selected) windows
+;; ====================================================
+(defface my/inactive-window-face
+  '((t (:background "#14162e")))
+  "Face used for the background of non-selected windows.
+Slightly grayer than the theme background so the active window
+stands out while staying perfectly readable.")
+
+(defvar-local my/inactive-window--cookies nil
+  "Face-remap cookies for the filtered dim remaps in this buffer.")
+
+(defun my/dim--ensure-remap (buffer)
+  "Install the per-window filtered dim remaps in BUFFER if absent.
+The remaps only take effect in windows whose `my/window-dimmed'
+parameter is non-nil, so two windows showing the same buffer can
+be dimmed independently.  We dim `default' plus the line-number
+faces, which the theme otherwise pins to a fixed background."
+  (with-current-buffer buffer
+    (unless my/inactive-window--cookies
+      (setq my/inactive-window--cookies
+            (mapcar
+             (lambda (face)
+               (face-remap-add-relative
+                face
+                '(:filtered (:window my/window-dimmed t)
+                            my/inactive-window-face)))
+             '(default line-number line-number-current-line))))))
+
+(defun my/dim-inactive-windows (&rest _)
+  "Dim every window except the selected one, per window."
+  (let ((selected (selected-window)))
+    (walk-windows
+     (lambda (win)
+       (my/dim--ensure-remap (window-buffer win))
+       (set-window-parameter win 'my/window-dimmed (not (eq win selected))))
+     nil t)))
+
+(add-hook 'window-configuration-change-hook #'my/dim-inactive-windows)
+(add-hook 'window-selection-change-functions #'my/dim-inactive-windows)
+(add-hook 'buffer-list-update-hook #'my/dim-inactive-windows)
 
 ;; discovery (shows keybinding on pause)
 (which-key-mode 1)

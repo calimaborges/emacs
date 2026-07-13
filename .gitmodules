@@ -58,3 +58,6 @@
 	path = site-lisp/hl-todo
 	url = https://github.com/tarsius/hl-todo
 	ignore = dirty
+[submodule "site-lisp/terraform-ts-mode"]
+	path = site-lisp/terraform-ts-mode
+	url = https://codeberg.org/ccbash-oss/terraform-ts-mode.git

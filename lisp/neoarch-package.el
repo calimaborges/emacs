@@ -13,7 +13,8 @@
   (add-to-list 'load-path (expand-file-name "inheritenv" site-lisp))
   (add-to-list 'load-path (expand-file-name "mise" site-lisp))
   (add-to-list 'load-path (expand-file-name "md-ts-mode" site-lisp))
-  (add-to-list 'load-path (expand-file-name "hl-todo" site-lisp)))
+  (add-to-list 'load-path (expand-file-name "hl-todo" site-lisp))
+  (add-to-list 'load-path (expand-file-name "terraform-ts-mode" site-lisp)))
 
 ;; magit
 (require 'magit)
@@ -50,14 +51,14 @@
 
 ;; treesit
 (require 'treesit)
-;; grammar source definition
 (setq treesit-language-source-alist
       '((markdown . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
         (markdown-inline . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src"))
         (bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
         (json . ("https://github.com/tree-sitter/tree-sitter-json"))
         (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-        (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))))
+        (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
+        (hcl . ("https://github.com/tree-sitter-grammars/tree-sitter-hcl" "main" "src"))))
 (setq treesit-font-lock-level 4)
 (with-eval-after-load 'md-ts-mode
   (require 'sh-script)
@@ -83,5 +84,7 @@
 
 (require 'hl-todo)
 (add-hook 'prog-mode-hook #'hl-todo-mode)
+
+(require 'terraform-ts-mode)
 
 (provide 'neoarch-package)

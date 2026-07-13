@@ -75,13 +75,11 @@ With a prefix (`C-u`), force the creation of a new vterm buffer."
   "The key sequence used to toggle pure passthrough in vterm."
   :type 'string
   :group 'neoarch)
-
 (defcustom neoarch/vterm-passthrough-prefix "C-c"
   "The prefix key that Emacs must intercept during vterm passthrough.
 This should match the first key in `neoarch/vterm-passthrough-key`."
   :type 'string
   :group 'neoarch)
-
 (defvar-local neoarch/vterm-saved-exceptions nil
   "Stores original vterm exceptions when pure passthrough is active.")
 (defvar neoarch/vterm-passthrough-prefix "C-c"
@@ -110,8 +108,6 @@ The prefix defined in `neoarch/vterm-passthrough-prefix` is preserved."
       (unless (equal key neoarch/vterm-passthrough-prefix)
         (local-set-key (kbd key) #'vterm--self-insert)))
     (message "Pure passthrough active!")))
-
-;; Automatically bind whatever the user set the variable to
 (with-eval-after-load 'vterm
   (define-key vterm-mode-map (kbd neoarch/vterm-passthrough-key) #'neoarch/vterm-toggle-passthrough))
 

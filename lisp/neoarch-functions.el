@@ -48,10 +48,7 @@ With a prefix (`C-u`), force the creation of a new vterm buffer."
 (defun neoarch/project-close ()
   "Kill the current perspective and close the project buffers."
   (interactive)
-  (message "Is this the function it is calling?")
-  (when (and (boundp 'persp-mode) persp-mode)
-    (persp-kill (persp-curr-name)))
-  (projectile-kill-buffers))
+  (call-interactively #'persp-kill))
 
 (defun neoarch/project-switch ()
   "Switch to an already active project/perspective."

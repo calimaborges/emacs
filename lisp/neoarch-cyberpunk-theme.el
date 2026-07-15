@@ -86,6 +86,19 @@
    `(font-lock-regexp-grouping-construct ((t (:foreground ,magenta-bright :weight bold))))
    `(font-lock-regexp-grouping-backslash ((t (:foreground ,yellow))))
 
+   ;; --- tree-sitter level-4 faces (Emacs 29+) -------------------------------
+   `(font-lock-number-face          ((t (:foreground ,orange))))
+   `(font-lock-operator-face        ((t (:foreground ,magenta-bright))))
+   `(font-lock-punctuation-face     ((t (:foreground ,fg-alt))))
+   `(font-lock-bracket-face         ((t (:foreground ,fg-alt))))
+   `(font-lock-delimiter-face       ((t (:foreground ,fg-alt))))
+   `(font-lock-misc-punctuation-face ((t (:foreground ,fg-alt))))
+   `(font-lock-escape-face          ((t (:foreground ,yellow :weight bold))))
+   `(font-lock-function-call-face   ((t (:foreground ,cyan))))
+   `(font-lock-variable-use-face    ((t (:foreground ,blue))))
+   `(font-lock-property-name-face   ((t (:foreground ,blue))))
+   `(font-lock-property-use-face    ((t (:foreground ,blue))))
+
    ;; --- parens & matching ---------------------------------------------------
    `(show-paren-match     ((t (:background ,magenta :foreground ,bg :weight bold))))
    `(show-paren-mismatch  ((t (:background ,red :foreground ,white :weight bold))))

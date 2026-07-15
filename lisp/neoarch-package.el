@@ -76,6 +76,7 @@
         (yaml-mode       . yaml-ts-mode)
         (js-json-mode    . json-ts-mode)
         (json-mode       . json-ts-mode)))
+(add-to-list 'auto-mode-alist '("\\.ya?ml\\'" . yaml-ts-mode))
 ;; interactive command to compile all grammars
 (defun neoarch-install-ts-grammars ()
   "Install missing ts grammars."

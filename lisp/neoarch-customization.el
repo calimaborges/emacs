@@ -5,6 +5,16 @@
     (when (file-exists-p custom-file)
       (load custom-file))
 
+;; disable backup files
+(setq make-backup-files nil)
+
+;; keep auto-save files out of project directories
+(let ((auto-save-dir (expand-file-name "auto-save/" user-emacs-directory)))
+  (unless (file-directory-p auto-save-dir)
+    (make-directory auto-save-dir t))
+  (setq auto-save-file-name-transforms
+        `((".*" ,auto-save-dir t))))
+
 ;; disable sound bell
 (setq visible-bell t)
 
@@ -159,5 +169,9 @@ faces, which the theme otherwise pins to a fixed background."
 
 ;; fix macos sentence behavior
 (setq sentence-end-double-space t)
+
+;; map .env files to conf-mode
+(add-to-list 'auto-mode-alist '("\\.env\\'" . conf-mode))
+(add-to-list 'auto-mode-alist '("\\.env\\..*\\'" . conf-mode))
 
 (provide 'neoarch-customization)

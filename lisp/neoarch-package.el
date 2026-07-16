@@ -25,7 +25,13 @@
 
 ;; vterm
 (require 'vterm)
-(add-hook 'vterm-mode-hook (lambda () (display-line-numbers-mode -1)))
+(add-hook 'vterm-mode-hook
+          (lambda ()
+            (display-line-numbers-mode -1)
+            ;; global-hl-line redraws on every keystroke and looks like a blink
+            (setq-local global-hl-line-mode nil)
+            (when (fboundp 'global-hl-line-unhighlight)
+              (global-hl-line-unhighlight))))
 
 ;; projectile
 (setq projectile-auto-discover t)

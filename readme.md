@@ -21,47 +21,22 @@ sudo ln -s /Applications/Emacs.app/Contents/MacOS/Emacs /usr/local/bin/emacs
 ```bash
 git clone --recurse-submodules https://github.com/calimaborges/emacs.git ~/.config/emacs
 
-# install magit
-cd ~/.config/emacs/site-lisp/magit
-make lisp
-
-# install vterm
-cd site-lisp/vterm
+# install vterm (native module)
+cd ~/.config/emacs/site-lisp/vterm
 mkdir -p build
 cd build
 cmake ..
 make
 
-# install projectile
-cd site-lisp/projectile
-emacs -Q --batch -L . -f batch-byte-compile projectile.el
+# byte-compile site-lisp packages and install treesit grammars
+emacs -Q --batch --eval "(setq neoarch-install-only t)" \
+  -l ~/.config/emacs/lisp/neoarch-package.el \
+  -f neoarch-install-packages
 
-# install perspective
-cd site-lisp/perspective
-make
-
-# install persp-projectile
-cd site-lisp/persp-projectile
-emacs -Q --batch -L . -L ../projectile -L ../perspective -f batch-byte-compile persp-projectile.el
-
-# install mise
-emacs -Q --batch -L site-lisp/inheritenv -f batch-byte-compile site-lisp/inheritenv/inheritenv.el
-emacs -Q --batch -L site-lisp/inheritenv -L site-lisp/mise -f batch-byte-compile site-lisp/mise/mise.el
-
-# install treesit grammars
-emacs --batch -l ~/.config/emacs/init.el -f neoarch-install-ts-grammars
-
-# install hl-todo
-cd site-lisp/hl-todo
-make
-
-# install wgrep
-cd site-lisp/wgrep
-emacs -batch -Q -L . -f batch-byte-compile wgrep-ack.el wgrep-ag.el wgrep-deadgrep.el wgrep-helm.el wgrep-pt.el
-
-# install rg
-cd site-lisp/rg
-emacs -batch -Q -L . -L ../wgrep -f batch-byte-compile *.el
+# same, but show byte-compile warnings
+emacs -Q --batch --eval "(setq neoarch-install-only t neoarch-byte-compile-warnings t)" \
+  -l ~/.config/emacs/lisp/neoarch-package.el \
+  -f neoarch-install-packages
 ```
 
 ### Pull submodules

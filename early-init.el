@@ -8,6 +8,9 @@
 
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
+(setq frame-resize-pixelwise t)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
 (require 'neoarch-customization)
 
 (provide 'early-init)

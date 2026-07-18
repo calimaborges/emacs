@@ -174,4 +174,9 @@ faces, which the theme otherwise pins to a fixed background."
 (add-to-list 'auto-mode-alist '("\\.env\\'" . conf-mode))
 (add-to-list 'auto-mode-alist '("\\.env\\..*\\'" . conf-mode))
 
+;; list directories separated from files in dired
+(require 'ls-lisp)
+(setq ls-lisp-use-insert-directory-program nil)
+(setq ls-lisp-dirs-first t)
+
 (provide 'neoarch-customization)

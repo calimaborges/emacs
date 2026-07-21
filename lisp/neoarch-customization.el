@@ -113,8 +113,15 @@ faces, which the theme otherwise pins to a fixed background."
             (setq c-basic-offset 4)
             (c-set-offset 'substatement-open 0)))
 
-(setq-default js-ts-mode-indent-offset 2)
-(setq-default typescript-ts-mode-indent-offset 2)
+;; JS/TS: treesit indent + Eglot format (:tabSize ← tab-width) share this.
+(defvar neoarch-js-ts-indent 2
+  "Indent width for JS/TS editing and Eglot format-on-save.")
+(defun neoarch-js-ts-indent-setup ()
+  (setq-local tab-width neoarch-js-ts-indent
+              js-ts-mode-indent-offset neoarch-js-ts-indent
+              typescript-ts-mode-indent-offset neoarch-js-ts-indent))
+(dolist (hook '(js-ts-mode-hook typescript-ts-mode-hook tsx-ts-mode-hook))
+  (add-hook hook #'neoarch-js-ts-indent-setup))
 
 ;; whitespace highlight
 (require 'whitespace)

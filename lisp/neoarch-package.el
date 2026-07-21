@@ -28,6 +28,9 @@
         (markdown-inline . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src"))
         (bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
         (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+        (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
+        (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
+        (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
         (python . ("https://github.com/tree-sitter/tree-sitter-python"))
         (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
         (hcl . ("https://github.com/tree-sitter-grammars/tree-sitter-hcl" "main" "src"))))
@@ -138,9 +141,13 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
           (bash-mode       . bash-ts-mode)
           (python-mode     . python-ts-mode)
           (yaml-mode       . yaml-ts-mode)
+          (js-mode         . js-ts-mode)
+          (javascript-mode . js-ts-mode)
           (js-json-mode    . json-ts-mode)
           (json-mode       . json-ts-mode)))
   (add-to-list 'auto-mode-alist '("\\.ya?ml\\'" . yaml-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
 
   (require 'hl-todo)
   (add-hook 'prog-mode-hook #'hl-todo-mode)
@@ -149,11 +156,19 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
 
   (require 'eglot)
   (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs '(terraform-ts-mode . ("mise" "exec" "--" "terraform-ls" "serve"))))
-  (add-hook 'terraform-ts-mode-hook #'eglot-ensure)
-  (add-hook 'terraform-ts-mode-hook
-            (lambda ()
-              (add-hook 'before-save-hook #'eglot-format-buffer nil t)))
+    (add-to-list 'eglot-server-programs
+                 '(terraform-ts-mode . ("mise" "exec" "--" "terraform-ls" "serve")))
+    (add-to-list 'eglot-server-programs
+                 '((js-ts-mode typescript-ts-mode tsx-ts-mode)
+                   . ("mise" "exec" "--" "tsc" "--lsp" "--stdio"))))
+  (dolist (hook '(terraform-ts-mode-hook
+                  js-ts-mode-hook
+                  typescript-ts-mode-hook
+                  tsx-ts-mode-hook))
+    (add-hook hook #'eglot-ensure)
+    (add-hook hook
+              (lambda ()
+                (add-hook 'before-save-hook #'eglot-format-buffer nil t))))
 
   (require 'wgrep)
 

@@ -33,7 +33,8 @@
         (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
         (python . ("https://github.com/tree-sitter/tree-sitter-python"))
         (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
-        (hcl . ("https://github.com/tree-sitter-grammars/tree-sitter-hcl" "main" "src"))))
+        (hcl . ("https://github.com/tree-sitter-grammars/tree-sitter-hcl" "main" "src"))
+        (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))))
 
 (defun neoarch-install-ts-grammars ()
   "Install missing ts grammars."
@@ -148,6 +149,9 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
   (add-to-list 'auto-mode-alist '("\\.ya?ml\\'" . yaml-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+  (add-to-list 'auto-mode-alist
+               '("\\(?:Dockerfile\\|Containerfile\\)\\(?:\\..*\\)?\\'\\|\\.[Dd]ockerfile\\'"
+                 . dockerfile-ts-mode))
 
   (require 'hl-todo)
   (add-hook 'prog-mode-hook #'hl-todo-mode)

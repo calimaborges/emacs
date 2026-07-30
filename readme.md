@@ -16,6 +16,12 @@ Remember to disable the keymap for changing the keyboard
 sudo ln -s /Applications/Emacs.app/Contents/MacOS/Emacs /usr/local/bin/emacs
 ```
 
+### Pull submodules
+
+```
+git submodule update --init --recursive
+```
+
 ### Packages
 
 ```bash
@@ -39,8 +45,9 @@ emacs -Q --batch --eval "(setq neoarch-install-only t neoarch-byte-compile-warni
   -f neoarch-install-packages
 ```
 
-### Pull submodules
+### Eglot
 
-```
-git submodule update --init --recursive
-```
+```bash
+mise use -g npm:typescript terraform-ls@latest
+````
+

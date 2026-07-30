@@ -161,10 +161,10 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
   (require 'eglot)
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs
-                 '(terraform-ts-mode . ("mise" "exec" "--" "terraform-ls" "serve")))
+                 '(terraform-ts-mode . ("terraform-ls" "serve")))
     (add-to-list 'eglot-server-programs
                  '((js-ts-mode typescript-ts-mode tsx-ts-mode)
-                   . ("mise" "exec" "--" "tsc" "--lsp" "--stdio"))))
+                   . ("tsc" "--lsp" "--stdio"))))
   (dolist (hook '(terraform-ts-mode-hook
                   js-ts-mode-hook
                   typescript-ts-mode-hook

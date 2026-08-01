@@ -44,6 +44,75 @@
 ;; only highlight the line in the selected window, not every window
 (setq hl-line-sticky-flag nil)
 
+;; hide CSS color previews on the current line
+;; ============================================
+;; `css-mode' paints color values (e.g. #f4f4f5) with the color as the
+;; background and a contrasting black/white foreground, via text
+;; properties.  The hl-line overlay draws on top of text-property
+;; backgrounds, leaving the contrast foreground behind -- so light
+;; colors render black-on-black on the highlighted line.  Instead, strip
+;; the preview from the line point is on and restore it when point
+;; leaves the line.
+
+(defvar-local my/css-color--line-beg nil
+  "Marker at the start of the line whose color previews are hidden.")
+(defvar-local my/css-color--line-end nil
+  "Marker at the end of the line whose color previews are hidden.")
+
+(defun my/css-color--strip (beg end)
+  "Remove css color-preview faces between BEG and END."
+  (with-silent-modifications
+    (save-excursion
+      (goto-char beg)
+      (let ((case-fold-search t))
+        (while (re-search-forward css--colors-regexp end t)
+          (let ((face (get-text-property (match-beginning 0) 'face)))
+            (when (and (consp face) (plist-member face :background))
+              (remove-text-properties (match-beginning 0) (match-end 0)
+                                      '(face nil)))))))))
+
+(defun my/css-color--fontify-region (orig beg end &optional loudly)
+  "Run ORIG on BEG..END, then hide color previews on the tracked line."
+  (let ((ret (funcall orig beg end loudly)))
+    (when (and css-fontify-colors
+               my/css-color--line-beg
+               (marker-position my/css-color--line-beg))
+      (let ((rbeg (if (eq (car-safe ret) 'jit-lock-bounds) (cadr ret) beg))
+            (rend (if (eq (car-safe ret) 'jit-lock-bounds) (cddr ret) end))
+            (lbeg (marker-position my/css-color--line-beg))
+            (lend (marker-position my/css-color--line-end)))
+        (when (and (< lbeg rend) (> lend rbeg))
+          (my/css-color--strip (max rbeg lbeg) (min rend lend)))))
+    ret))
+
+(defun my/css-color--track-line ()
+  "Refontify the old and new line whenever point moves to another line."
+  (let ((beg (line-beginning-position))
+        (end (line-end-position)))
+    (unless (and my/css-color--line-beg
+                 (eql beg (marker-position my/css-color--line-beg)))
+      (let ((old-beg (and my/css-color--line-beg
+                          (marker-position my/css-color--line-beg)))
+            (old-end (and my/css-color--line-end
+                          (marker-position my/css-color--line-end))))
+        (if my/css-color--line-beg
+            (progn (set-marker my/css-color--line-beg beg)
+                   (set-marker my/css-color--line-end end))
+          ;; End marker advances when typing at end of line, so previews
+          ;; typed on the current line are hidden too.
+          (setq my/css-color--line-beg (copy-marker beg))
+          (setq my/css-color--line-end (copy-marker end t)))
+        (when (and old-beg old-end (< old-beg old-end))
+          (font-lock-flush old-beg old-end))
+        (when (< beg end)
+          (font-lock-flush beg end))))))
+
+(with-eval-after-load 'css-mode
+  (advice-add 'css--fontify-region :around #'my/css-color--fontify-region)
+  (add-hook 'css-base-mode-hook
+            (lambda ()
+              (add-hook 'post-command-hook #'my/css-color--track-line nil t))))
+
 ;; display line number in the left
 (global-display-line-numbers-mode 1)
 

@@ -255,4 +255,8 @@ faces, which the theme otherwise pins to a fixed background."
 (setq ls-lisp-use-insert-directory-program nil)
 (setq ls-lisp-dirs-first t)
 
+(setq epa-file-encrypt-to '("36ACD11BFB9CDCF4DD2AF5882B842B2570C82E16"))
+(setq epa-file-select-keys 'silent)
+(setq epg-pinentry-mode 'loopback)
+
 (provide 'neoarch-customization)

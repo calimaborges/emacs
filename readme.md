@@ -16,6 +16,15 @@ Remember to disable the keymap for changing the keyboard
 sudo ln -s /Applications/Emacs.app/Contents/MacOS/Emacs /usr/local/bin/emacs
 ```
 
+### Install new submodule
+
+```bash
+git submodule add $PACKAGE_REPOSITORY site-lisp/$PACKAGE_NAME
+````
+
+- Append a new item to `neoarch-site-lisp-dirs` in `neoarch-package.el`.
+- Run the installation script
+
 ### Pull submodules
 
 ```

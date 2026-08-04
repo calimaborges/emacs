@@ -70,3 +70,9 @@
 	path = site-lisp/wgrep
 	url = https://github.com/mhayashi1120/Emacs-wgrep.git
 	ignore = dirty
+[submodule "site-lisp/site-lisp/htmlize"]
+	path = site-lisp/site-lisp/htmlize
+	url = https://github.com/emacsorphanage/htmlize.git
+[submodule "site-lisp/htmlize"]
+	path = site-lisp/htmlize
+	url = https://github.com/emacsorphanage/htmlize.git

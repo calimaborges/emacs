@@ -16,7 +16,7 @@
     "with-editor/lisp" "transient/lisp" "magit/lisp"
     "vterm" "projectile" "perspective" "persp-projectile"
     "inheritenv" "mise" "md-ts-mode" "hl-todo"
-    "terraform-ts-mode" "wgrep" "rg")
+    "terraform-ts-mode" "wgrep" "rg" "htmlize")
   "Relative directories under site-lisp to add to `load-path' and byte-compile.")
 (let ((site-lisp (expand-file-name "site-lisp" user-emacs-directory)))
   (dolist (dir neoarch-site-lisp-dirs)

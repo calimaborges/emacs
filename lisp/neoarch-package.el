@@ -16,7 +16,8 @@
     "with-editor/lisp" "transient/lisp" "magit/lisp"
     "vterm" "projectile" "perspective" "persp-projectile"
     "inheritenv" "mise" "md-ts-mode" "hl-todo"
-    "terraform-ts-mode" "wgrep" "rg" "htmlize")
+    "terraform-ts-mode" "wgrep" "rg" "htmlize"
+    "s" "f" "password-store" "password-store-otp" "pass")
   "Relative directories under site-lisp to add to `load-path' and byte-compile.")
 (let ((site-lisp (expand-file-name "site-lisp" user-emacs-directory)))
   (dolist (dir neoarch-site-lisp-dirs)
@@ -176,6 +177,8 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
 
   (require 'wgrep)
 
-  (require 'rg))
+  (require 'rg)
+
+  (autoload 'pass "pass" nil t))
 
 (provide 'neoarch-package)

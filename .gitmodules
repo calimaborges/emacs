@@ -76,3 +76,23 @@
 [submodule "site-lisp/htmlize"]
 	path = site-lisp/htmlize
 	url = https://github.com/emacsorphanage/htmlize.git
+[submodule "site-lisp/pass"]
+	path = site-lisp/pass
+	url = https://github.com/NicolasPetton/pass.git
+	ignore = dirty
+[submodule "site-lisp/password-store"]
+	path = site-lisp/password-store
+	url = https://github.com/emacsmirror/password-store.git
+	ignore = dirty
+[submodule "site-lisp/password-store-otp"]
+	path = site-lisp/password-store-otp
+	url = https://github.com/volrath/password-store-otp.el.git
+	ignore = dirty
+[submodule "site-lisp/s"]
+	path = site-lisp/s
+	url = https://github.com/magnars/s.el.git
+	ignore = dirty
+[submodule "site-lisp/f"]
+	path = site-lisp/f
+	url = https://github.com/rejeep/f.el.git
+	ignore = dirty

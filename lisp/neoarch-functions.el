@@ -19,8 +19,9 @@
       (directory-files profile-path nil "^[^.]"))))
 
 (defun neoarch/project-terminal (&optional new-terminal)
-  "Switch to a vterm buffer for the current perspective.
-If none exists, create one.
+  "Toggle the vterm buffer for the current perspective.
+Create one if none exists.  When already inside the perspective's
+vterm, jump back to the previously selected buffer.
 With a prefix (`C-u`), force the creation of a new vterm buffer."
   (interactive "P")
   (require 'vterm)
@@ -30,9 +31,12 @@ With a prefix (`C-u`), force the creation of a new vterm buffer."
          (persp-bufs (persp-buffers (persp-curr)))
          (existing-vterms (seq-filter (lambda (buf) (string-prefix-p base-name (buffer-name buf)))
                                        persp-bufs)))
-    (if (or new-terminal (null existing-vterms))
-        (vterm (generate-new-buffer-name base-name))
-      (pop-to-buffer-same-window (car existing-vterms)))))
+    (cond
+     (new-terminal (vterm (generate-new-buffer-name base-name)))
+     ((string-prefix-p base-name (buffer-name))
+      (switch-to-buffer (other-buffer)))
+     ((null existing-vterms) (vterm (generate-new-buffer-name base-name)))
+     (t (pop-to-buffer-same-window (car existing-vterms))))))
 
 (defun neoarch/project-create ()
   "Create a new project."
@@ -70,6 +74,28 @@ With a prefix (`C-u`), force the creation of a new vterm buffer."
   (interactive)
   (call-interactively #'projectile-ripgrep))
 
+(defun neoarch/switch-to-file-buffer ()
+  "Switch to a file-visiting buffer within the current perspective."
+  (interactive)
+  (require 'perspective)
+  (let ((file-buffers (seq-filter #'buffer-file-name (persp-buffers (persp-curr)))))
+    (unless file-buffers
+      (user-error "No file buffers in the current perspective"))
+    (switch-to-buffer
+     (completing-read "File buffer: " (mapcar #'buffer-name file-buffers) nil t))))
+
+(defun neoarch/switch-to-terminal-buffer ()
+  "Switch to a vterm buffer from any perspective."
+  (interactive)
+  (require 'perspective)
+  (let ((terminal-buffers (seq-filter (lambda (buffer)
+                                        (eq (buffer-local-value 'major-mode buffer) 'vterm-mode))
+                                      (buffer-list))))
+    (unless terminal-buffers
+      (user-error "No terminal buffers"))
+    (persp-switch-to-buffer
+     (completing-read "Terminal: " (mapcar #'buffer-name terminal-buffers) nil t))))
+
 (defvar-local neoarch/vterm-saved-exceptions nil
   "Stores original vterm exceptions when pure passthrough is active.")
 
@@ -82,6 +108,14 @@ With a prefix (`C-u`), force the creation of a new vterm buffer."
 This should match the first key in `neoarch/vterm-passthrough-key`."
   :type 'string
   :group 'neoarch)
+(defcustom neoarch/vterm-passthrough-preserved-keys '("C-`")
+  "Keys that keep their Emacs commands while vterm passthrough is active."
+  :type '(repeat string)
+  :group 'neoarch)
+(defun neoarch/vterm--passthrough-preserved-p (key)
+  "Return non-nil if KEY must stay bound to Emacs during passthrough."
+  (or (equal key neoarch/vterm-passthrough-prefix)
+      (member key neoarch/vterm-passthrough-preserved-keys)))
 (defun neoarch/vterm-setup-passthrough (full-key)
   "Configure and bind vterm passthrough toggle.
 FULL-KEY is the exact binding (e.g., \"C-c C-k\")."
@@ -97,16 +131,19 @@ The prefix defined in `neoarch/vterm-passthrough-prefix` is preserved."
   (if neoarch/vterm-saved-exceptions
       (progn
         (dolist (key neoarch/vterm-saved-exceptions)
-          (unless (equal key neoarch/vterm-passthrough-prefix)
+          (unless (neoarch/vterm--passthrough-preserved-p key)
             (local-unset-key (kbd key))))
         (setq neoarch/vterm-saved-exceptions nil)
         (message "Exited pure passthrough. Standard Emacs keys restored."))
     (setq neoarch/vterm-saved-exceptions vterm-keymap-exceptions)
     (dolist (key neoarch/vterm-saved-exceptions)
-      (unless (equal key neoarch/vterm-passthrough-prefix)
+      (unless (neoarch/vterm--passthrough-preserved-p key)
         (local-set-key (kbd key) #'vterm--self-insert)))
     (message "Pure passthrough active!")))
 (with-eval-after-load 'vterm
+  (unless (member "C-`" vterm-keymap-exceptions)
+    (customize-set-variable 'vterm-keymap-exceptions
+                            (cons "C-`" vterm-keymap-exceptions)))
   (define-key vterm-mode-map (kbd neoarch/vterm-passthrough-key) #'neoarch/vterm-toggle-passthrough))
 
 (defun neoarch/vc-status ()
@@ -146,5 +183,52 @@ The prefix defined in `neoarch/vterm-passthrough-prefix` is preserved."
   (interactive)
   (let ((projectile-switch-project-action #'projectile-dired))
     (projectile-persp-switch-project user-emacs-directory)))
+
+(defvar neoarch/keybinding-groups
+  '(("Projects & Perspectives"
+     ("s-j" "Switch perspective" neoarch/project-switch)
+     ("s-1 .. s-9" "Switch perspective by number")
+     ("C-<tab> / C-S-<tab>" "Next / previous perspective")
+     ("s-o" "Open project in a new perspective" neoarch/project-open)
+     ("s-n" "Create project" neoarch/project-create)
+     ("s-w" "Close project perspective" neoarch/project-close)
+     ("C-x p" "Projectile command prefix"))
+    ("Files & Search"
+     ("s-p" "Find file in project" neoarch/project-find-file)
+     ("s-f" "Ripgrep in project" neoarch/project-grep)
+     ("s-b" "Switch to file buffer in perspective" neoarch/switch-to-file-buffer))
+    ("Terminal"
+     ("s-t" "Toggle project terminal (C-u: new one)" neoarch/project-terminal)
+     ("C-`" "Toggle project terminal" neoarch/project-terminal)
+     ("s-`" "Switch to any terminal buffer" neoarch/switch-to-terminal-buffer)
+     ("C-c C-k" "Toggle vterm passthrough (in vterm)"))
+    ("Version Control"
+     ("C-x g" "Magit status" neoarch/vc-status))
+    ("Eglot"
+     ("M-. / M-, / M-?" "Definition / back / references")
+     ("C-c r" "Rename symbol")
+     ("C-c a" "Code actions")
+     ("C-c f" "Format buffer")
+     ("M-n / M-p" "Next / previous diagnostic"))
+    ("Help"
+     ("C-x x" "Show this cheat sheet" neoarch/describe-keybindings)))
+  "Keybinding scheme grouped by topic.
+Each entry is (KEY DESCRIPTION [COMMAND]).  Entries with a COMMAND are
+bound globally by `neoarch-keybinding'; the rest are display-only.")
+
+(defun neoarch/describe-keybindings ()
+  "Display a cheat sheet of the keybinding scheme."
+  (interactive)
+  (with-help-window "*Neoarch Keybindings*"
+    (with-current-buffer standard-output
+      (dolist (group neoarch/keybinding-groups)
+        (insert (propertize (car group) 'face 'bold) "\n")
+        (pcase-dolist (`(,key ,description ,command) (cdr group))
+          (insert (if command
+                      (format "  %-22s %-42s%s" key description
+                              (propertize (symbol-name command) 'face 'shadow))
+                    (format "  %-22s %s" key description))
+                  "\n"))
+        (insert "\n")))))
 
 (provide 'neoarch-functions)

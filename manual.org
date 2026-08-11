@@ -1,21 +1,68 @@
 #+TITLE: Neoarch Emacs User Manual
 
-This is still WIP. Most keybindings are not configured yet.
+Press =C-x x= inside Emacs to display this cheat sheet at any time.
 
 * Keybinds
 
-|---------+----------------------------------|
-| Keybind | Command                          |
-|---------+----------------------------------|
-| C-x x t | nerarch/project-terminal         |
-| C-x x n | neoarch/project-create           |
-| C-x x o | neoarch/project-open             |
-| C-x x c | neoarch/project-close            |
-| C-x x s | neoarch/project-switch           |
-| C-x x f | neoarch/project-find-file        |
-| C-x x g | neoarch/project-grep             |
-|---------+----------------------------------|
-| C-x g   | neoarch/vc-status                |
-| C-c C-k | neoarch/vterm-toggle-passthrough |
-|---------+----------------------------------|
+** Projects & Perspectives
 
+|---------------------+---------------------------------+---------------------------|
+| Keybind             | Action                          | Command                   |
+|---------------------+---------------------------------+---------------------------|
+| s-j                 | Switch perspective              | neoarch/project-switch    |
+| s-1 .. s-9          | Switch perspective by number    | persp-switch-by-number    |
+| C-<tab> / C-S-<tab> | Next / previous perspective     | persp-next / persp-prev   |
+| s-o                 | Open project in new perspective | neoarch/project-open      |
+| s-n                 | Create project                  | neoarch/project-create    |
+| s-w                 | Close project perspective       | neoarch/project-close     |
+| C-x p               | Projectile command prefix       | projectile-command-map    |
+|---------------------+---------------------------------+---------------------------|
+
+** Files & Search
+
+|---------+---------------------------------------+-------------------------------|
+| Keybind | Action                                | Command                       |
+|---------+---------------------------------------+-------------------------------|
+| s-p     | Find file in project                  | neoarch/project-find-file     |
+| s-f     | Ripgrep in project                    | neoarch/project-grep          |
+| s-b     | Switch to file buffer in perspective  | neoarch/switch-to-file-buffer |
+|---------+---------------------------------------+-------------------------------|
+
+** Terminal
+
+|---------+---------------------------------------+-----------------------------------|
+| Keybind | Action                                | Command                           |
+|---------+---------------------------------------+-----------------------------------|
+| s-t     | Toggle project terminal (C-u: new)    | neoarch/project-terminal          |
+| C-`     | Toggle project terminal               | neoarch/project-terminal          |
+| s-`     | Switch to any terminal buffer         | neoarch/switch-to-terminal-buffer |
+| C-c C-k | Toggle vterm passthrough (in vterm)   | neoarch/vterm-toggle-passthrough  |
+|---------+---------------------------------------+-----------------------------------|
+
+** Version Control
+
+|---------+--------------+-------------------|
+| Keybind | Action       | Command           |
+|---------+--------------+-------------------|
+| C-x g   | Magit status | neoarch/vc-status |
+|---------+--------------+-------------------|
+
+** Eglot
+
+|-----------------+-----------------------------------+---------------------------------------------------|
+| Keybind         | Action                            | Command                                           |
+|-----------------+-----------------------------------+---------------------------------------------------|
+| M-. / M-, / M-? | Definition / back / references    | xref                                              |
+| C-c r           | Rename symbol                     | eglot-rename                                      |
+| C-c a           | Code actions                      | eglot-code-actions                                |
+| C-c f           | Format buffer                     | eglot-format-buffer                               |
+| M-n / M-p       | Next / previous diagnostic        | flymake-goto-next-error / flymake-goto-prev-error |
+|-----------------+-----------------------------------+---------------------------------------------------|
+
+** Help
+
+|---------+-----------------------+------------------------------|
+| Keybind | Action                | Command                      |
+|---------+-----------------------+------------------------------|
+| C-x x   | Show this cheat sheet | neoarch/describe-keybindings |
+|---------+-----------------------+------------------------------|

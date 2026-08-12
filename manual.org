@@ -14,9 +14,18 @@ Press =C-x x= inside Emacs to display this cheat sheet at any time.
 | C-<tab> / C-S-<tab> | Next / previous perspective     | persp-next / persp-prev   |
 | s-o                 | Open project in new perspective | neoarch/project-open      |
 | s-n                 | Create project                  | neoarch/project-create    |
-| s-w                 | Close project perspective       | neoarch/project-close     |
+| s-q                 | Close project perspective       | neoarch/project-close     |
+| s-w                 | Close current buffer            | kill-current-buffer       |
 | C-x p               | Projectile command prefix       | projectile-command-map    |
 |---------------------+---------------------------------+---------------------------|
+
+** Windows
+
+|------------+---------------------------+------------------------------|
+| Keybind    | Action                    | Command                      |
+|------------+---------------------------+------------------------------|
+| s-<arrows> | Focus window in direction | windmove-left/right/up/down  |
+|------------+---------------------------+------------------------------|
 
 ** Files & Search
 

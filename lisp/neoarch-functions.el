@@ -108,14 +108,6 @@ With a prefix (`C-u`), force the creation of a new vterm buffer."
 This should match the first key in `neoarch/vterm-passthrough-key`."
   :type 'string
   :group 'neoarch)
-(defcustom neoarch/vterm-passthrough-preserved-keys '("C-`")
-  "Keys that keep their Emacs commands while vterm passthrough is active."
-  :type '(repeat string)
-  :group 'neoarch)
-(defun neoarch/vterm--passthrough-preserved-p (key)
-  "Return non-nil if KEY must stay bound to Emacs during passthrough."
-  (or (equal key neoarch/vterm-passthrough-prefix)
-      (member key neoarch/vterm-passthrough-preserved-keys)))
 (defun neoarch/vterm-setup-passthrough (full-key)
   "Configure and bind vterm passthrough toggle.
 FULL-KEY is the exact binding (e.g., \"C-c C-k\")."
@@ -131,19 +123,16 @@ The prefix defined in `neoarch/vterm-passthrough-prefix` is preserved."
   (if neoarch/vterm-saved-exceptions
       (progn
         (dolist (key neoarch/vterm-saved-exceptions)
-          (unless (neoarch/vterm--passthrough-preserved-p key)
+          (unless (equal key neoarch/vterm-passthrough-prefix)
             (local-unset-key (kbd key))))
         (setq neoarch/vterm-saved-exceptions nil)
         (message "Exited pure passthrough. Standard Emacs keys restored."))
     (setq neoarch/vterm-saved-exceptions vterm-keymap-exceptions)
     (dolist (key neoarch/vterm-saved-exceptions)
-      (unless (neoarch/vterm--passthrough-preserved-p key)
+      (unless (equal key neoarch/vterm-passthrough-prefix)
         (local-set-key (kbd key) #'vterm--self-insert)))
     (message "Pure passthrough active!")))
 (with-eval-after-load 'vterm
-  (unless (member "C-`" vterm-keymap-exceptions)
-    (customize-set-variable 'vterm-keymap-exceptions
-                            (cons "C-`" vterm-keymap-exceptions)))
   (define-key vterm-mode-map (kbd neoarch/vterm-passthrough-key) #'neoarch/vterm-toggle-passthrough))
 
 (defun neoarch/vc-status ()
@@ -184,6 +173,18 @@ The prefix defined in `neoarch/vterm-passthrough-prefix` is preserved."
   (let ((projectile-switch-project-action #'projectile-dired))
     (projectile-persp-switch-project user-emacs-directory)))
 
+(defun init-reload ()
+  "Re-evaluate all Neoarch lisp modules in place.
+For a fully clean slate use `restart-emacs' instead."
+  (interactive)
+  (dolist (module '("neoarch-customization"
+                    "neoarch-functions"
+                    "neoarch-theme"
+                    "neoarch-package"
+                    "neoarch-keybinding"))
+    (load (expand-file-name (concat "lisp/" module) user-emacs-directory)))
+  (message "Neoarch init reloaded"))
+
 (defvar neoarch/keybinding-groups
   '(("Projects & Perspectives"
      ("s-j" "Switch perspective" neoarch/project-switch)
@@ -191,8 +192,11 @@ The prefix defined in `neoarch/vterm-passthrough-prefix` is preserved."
      ("C-<tab> / C-S-<tab>" "Next / previous perspective")
      ("s-o" "Open project in a new perspective" neoarch/project-open)
      ("s-n" "Create project" neoarch/project-create)
-     ("s-w" "Close project perspective" neoarch/project-close)
+     ("s-q" "Close project perspective" neoarch/project-close)
+     ("s-w" "Close current buffer" kill-current-buffer)
      ("C-x p" "Projectile command prefix"))
+    ("Windows"
+     ("s-<arrows>" "Focus window in direction"))
     ("Files & Search"
      ("s-p" "Find file in project" neoarch/project-find-file)
      ("s-f" "Ripgrep in project" neoarch/project-grep)

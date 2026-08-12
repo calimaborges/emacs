@@ -57,6 +57,6 @@ emacs -Q --batch --eval "(setq neoarch-install-only t neoarch-byte-compile-warni
 ### Eglot
 
 ```bash
-mise use -g node@latest npm:typescript terraform-ls@latest
+mise use -g node@latest npm:typescript terraform-ls@latest java@26 vfox:tinnet/vfox-jdtls@latest
 ````
 

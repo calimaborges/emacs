@@ -33,6 +33,7 @@
         (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
         (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
         (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+        (java . ("https://github.com/tree-sitter/tree-sitter-java"))
         (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
         (hcl . ("https://github.com/tree-sitter-grammars/tree-sitter-hcl" "main" "src"))
         (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))))
@@ -142,6 +143,7 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
         '((sh-mode         . bash-ts-mode)
           (bash-mode       . bash-ts-mode)
           (python-mode     . python-ts-mode)
+          (java-mode       . java-ts-mode)
           (yaml-mode       . yaml-ts-mode)
           (js-mode         . js-ts-mode)
           (javascript-mode . js-ts-mode)
@@ -169,11 +171,12 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
   (dolist (hook '(terraform-ts-mode-hook
                   js-ts-mode-hook
                   typescript-ts-mode-hook
-                  tsx-ts-mode-hook))
-    (add-hook hook #'eglot-ensure)
-    (add-hook hook
-              (lambda ()
-                (add-hook 'before-save-hook #'eglot-format-buffer nil t))))
+                  tsx-ts-mode-hook
+                  java-ts-mode-hook))
+    (add-hook hook #'eglot-ensure))
+  (add-hook 'terraform-ts-mode-hook
+            (lambda ()
+              (add-hook 'before-save-hook #'eglot-format-buffer nil t)))
 
   (require 'wgrep)
 

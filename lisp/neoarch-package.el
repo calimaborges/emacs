@@ -168,12 +168,34 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
     (add-to-list 'eglot-server-programs
                  '((js-ts-mode typescript-ts-mode tsx-ts-mode)
                    . ("tsc" "--lsp" "--stdio"))))
+  (defun neoarch-java-package-name (&optional file)
+    "Return the Java package implied by FILE, or nil."
+    (when-let* ((file (or file buffer-file-name))
+                (dir (file-name-directory (expand-file-name file)))
+                (parts (file-name-split (directory-file-name dir))))
+      (catch 'found
+        (while parts
+          (when (and (equal (nth 0 parts) "src")
+                     (nth 1 parts)
+                     (equal (nth 2 parts) "java")
+                     (nthcdr 3 parts))
+            (throw 'found (string-join (nthcdr 3 parts) ".")))
+          (setq parts (cdr parts)))
+        nil)))
+
+  (defun neoarch-java-insert-package-header ()
+    "Insert a package declaration in an empty Java buffer when the path implies one."
+    (when (and buffer-file-name (zerop (buffer-size)))
+      (when-let ((package (neoarch-java-package-name)))
+        (insert "package " package ";\n\n"))))
+
   (dolist (hook '(terraform-ts-mode-hook
                   js-ts-mode-hook
                   typescript-ts-mode-hook
                   tsx-ts-mode-hook
                   java-ts-mode-hook))
     (add-hook hook #'eglot-ensure))
+  (add-hook 'java-ts-mode-hook #'neoarch-java-insert-package-header)
   (add-hook 'terraform-ts-mode-hook
             (lambda ()
               (add-hook 'before-save-hook #'eglot-format-buffer nil t)))

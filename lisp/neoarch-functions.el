@@ -74,27 +74,45 @@ With a prefix (`C-u`), force the creation of a new vterm buffer."
   (interactive)
   (call-interactively #'projectile-ripgrep))
 
+(defun neoarch/switch-to-perspective-buffer (prompt predicate empty-message)
+  "Switch to a current-perspective buffer matching PREDICATE."
+  (require 'perspective)
+  (let ((buffers (seq-filter (lambda (buffer)
+                               (and (buffer-live-p buffer)
+                                    (funcall predicate buffer)))
+                             (persp-current-buffers))))
+    (unless buffers
+      (user-error "%s" empty-message))
+    (switch-to-buffer
+     (completing-read prompt (mapcar #'buffer-name buffers) nil t))))
+
 (defun neoarch/switch-to-file-buffer ()
   "Switch to a file-visiting buffer within the current perspective."
   (interactive)
-  (require 'perspective)
-  (let ((file-buffers (seq-filter #'buffer-file-name (persp-buffers (persp-curr)))))
-    (unless file-buffers
-      (user-error "No file buffers in the current perspective"))
-    (switch-to-buffer
-     (completing-read "File buffer: " (mapcar #'buffer-name file-buffers) nil t))))
+  (neoarch/switch-to-perspective-buffer
+   "File buffer: "
+   #'buffer-file-name
+   "No file buffers in the current perspective"))
 
 (defun neoarch/switch-to-terminal-buffer ()
-  "Switch to a vterm buffer from any perspective."
+  "Switch to a vterm buffer within the current perspective."
   (interactive)
-  (require 'perspective)
-  (let ((terminal-buffers (seq-filter (lambda (buffer)
-                                        (eq (buffer-local-value 'major-mode buffer) 'vterm-mode))
-                                      (buffer-list))))
-    (unless terminal-buffers
-      (user-error "No terminal buffers"))
-    (persp-switch-to-buffer
-     (completing-read "Terminal: " (mapcar #'buffer-name terminal-buffers) nil t))))
+  (neoarch/switch-to-perspective-buffer
+   "Terminal: "
+   (lambda (buffer)
+     (eq (buffer-local-value 'major-mode buffer) 'vterm-mode))
+   "No terminal buffers in the current perspective"))
+
+(defun neoarch/switch-to-other-buffer ()
+  "Switch to a non-file, non-terminal buffer within the current perspective."
+  (interactive)
+  (neoarch/switch-to-perspective-buffer
+   "Other buffer: "
+   (lambda (buffer)
+     (and (not (buffer-file-name buffer))
+          (not (eq (buffer-local-value 'major-mode buffer) 'vterm-mode))
+          (not (string-prefix-p " " (buffer-name buffer)))))
+   "No other buffers in the current perspective"))
 
 (defvar-local neoarch/vterm-saved-exceptions nil
   "Stores original vterm exceptions when pure passthrough is active.")
@@ -199,12 +217,14 @@ For a fully clean slate use `restart-emacs' instead."
      ("s-<arrows>" "Focus window in direction"))
     ("Files & Search"
      ("s-p" "Find file in project" neoarch/project-find-file)
-     ("s-f" "Ripgrep in project" neoarch/project-grep)
-     ("s-b" "Switch to file buffer in perspective" neoarch/switch-to-file-buffer))
+     ("s-f" "Ripgrep in project" neoarch/project-grep))
+    ("Buffers"
+     ("s-b" "Switch to file buffer in perspective" neoarch/switch-to-file-buffer)
+     ("s-B" "Switch to other buffer in perspective" neoarch/switch-to-other-buffer))
     ("Terminal"
      ("s-t" "Toggle project terminal (C-u: new one)" neoarch/project-terminal)
      ("C-`" "Toggle project terminal" neoarch/project-terminal)
-     ("s-`" "Switch to any terminal buffer" neoarch/switch-to-terminal-buffer)
+     ("s-`" "Switch to terminal in perspective" neoarch/switch-to-terminal-buffer)
      ("C-c C-k" "Toggle vterm passthrough (in vterm)"))
     ("Version Control"
      ("C-x g" "Magit status" neoarch/vc-status))

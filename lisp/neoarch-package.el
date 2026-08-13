@@ -120,6 +120,7 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
   ;; perspective
   (custom-set-variables '(persp-suppress-no-prefix-key-warning t))
   (require 'perspective)
+  (setq persp-sort 'oldest)
   (persp-mode +1)
 
   ;; persp-projectile

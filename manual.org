@@ -29,13 +29,21 @@ Press =C-x x= inside Emacs to display this cheat sheet at any time.
 
 ** Files & Search
 
-|---------+---------------------------------------+-------------------------------|
-| Keybind | Action                                | Command                       |
-|---------+---------------------------------------+-------------------------------|
-| s-p     | Find file in project                  | neoarch/project-find-file     |
-| s-f     | Ripgrep in project                    | neoarch/project-grep          |
-| s-b     | Switch to file buffer in perspective  | neoarch/switch-to-file-buffer |
-|---------+---------------------------------------+-------------------------------|
+|---------+----------------------+---------------------------|
+| Keybind | Action               | Command                   |
+|---------+----------------------+---------------------------|
+| s-p     | Find file in project | neoarch/project-find-file |
+| s-f     | Ripgrep in project   | neoarch/project-grep      |
+|---------+----------------------+---------------------------|
+
+** Buffers
+
+|---------+----------------------------------------+--------------------------------|
+| Keybind | Action                                 | Command                        |
+|---------+----------------------------------------+--------------------------------|
+| s-b     | Switch to file buffer in perspective   | neoarch/switch-to-file-buffer  |
+| s-B     | Switch to other buffer in perspective  | neoarch/switch-to-other-buffer |
+|---------+----------------------------------------+--------------------------------|
 
 ** Terminal
 
@@ -44,7 +52,7 @@ Press =C-x x= inside Emacs to display this cheat sheet at any time.
 |---------+---------------------------------------+-----------------------------------|
 | s-t     | Toggle project terminal (C-u: new)    | neoarch/project-terminal          |
 | C-`     | Toggle project terminal               | neoarch/project-terminal          |
-| s-`     | Switch to any terminal buffer         | neoarch/switch-to-terminal-buffer |
+| s-`     | Switch to terminal in perspective     | neoarch/switch-to-terminal-buffer |
 | C-c C-k | Toggle vterm passthrough (in vterm)   | neoarch/vterm-toggle-passthrough  |
 |---------+---------------------------------------+-----------------------------------|
 

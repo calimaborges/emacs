@@ -32,6 +32,7 @@
         (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
         (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
         (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
+        (html . ("https://github.com/tree-sitter/tree-sitter-html"))
         (python . ("https://github.com/tree-sitter/tree-sitter-python"))
         (java . ("https://github.com/tree-sitter/tree-sitter-java"))
         (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
@@ -149,10 +150,13 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
           (js-mode         . js-ts-mode)
           (javascript-mode . js-ts-mode)
           (js-json-mode    . json-ts-mode)
-          (json-mode       . json-ts-mode)))
+          (json-mode       . json-ts-mode)
+          (html-mode       . html-ts-mode)
+          (mhtml-mode      . html-ts-mode)))
   (add-to-list 'auto-mode-alist '("\\.ya?ml\\'" . yaml-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.html?\\'" . html-ts-mode))
   (add-to-list 'auto-mode-alist
                '("\\(?:Dockerfile\\|Containerfile\\)\\(?:\\..*\\)?\\'\\|\\.[Dd]ockerfile\\'"
                  . dockerfile-ts-mode))
@@ -162,13 +166,45 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
 
   (require 'terraform-ts-mode)
 
+  (defun neoarch-project-try-java-build (dir)
+    "Return a Maven/Gradle project for DIR when a build file is found."
+    (when-let ((root (seq-some (lambda (marker)
+                                 (locate-dominating-file dir marker))
+                               '("pom.xml" "build.gradle" "build.gradle.kts"))))
+      (cons 'transient (file-name-as-directory (expand-file-name root)))))
+
+  (add-hook 'project-find-functions #'neoarch-project-try-java-build)
+
+  (defun neoarch-eglot-jdtls-contact (_interactive &optional project)
+    "Return a jdtls contact with a workspace unique to PROJECT's root."
+    (let* ((root (expand-file-name
+                  (if project (project-root project) default-directory)))
+           (jdtls (executable-find "jdtls"))
+           (cache (expand-file-name
+                   (if (eq system-type 'darwin)
+                       "Library/Caches/jdtls"
+                     ".cache/jdtls")
+                   (getenv "HOME")))
+           (data (expand-file-name (concat "jdtls-" (sha1 root)) cache)))
+      (unless jdtls
+        (error "jdtls not found on exec-path"))
+      (list jdtls "-data" data)))
+
   (require 'eglot)
   (with-eval-after-load 'eglot
+    (setq eglot-connect-timeout 60)
+    (add-to-list 'eglot-server-programs
+                 `((java-mode java-ts-mode) . ,#'neoarch-eglot-jdtls-contact))
     (add-to-list 'eglot-server-programs
                  '(terraform-ts-mode . ("terraform-ls" "serve")))
     (add-to-list 'eglot-server-programs
                  '((js-ts-mode typescript-ts-mode tsx-ts-mode)
-                   . ("tsc" "--lsp" "--stdio"))))
+                   . ("tsc" "--lsp" "--stdio")))
+    (add-to-list 'eglot-server-programs
+                 '(html-ts-mode . ("vscode-html-language-server" "--stdio")))
+    (add-to-list 'eglot-server-programs
+                 '(json-ts-mode . ("vscode-json-language-server" "--stdio"
+                                   :initializationOptions (:provideFormatter t)))))
   (defun neoarch-java-package-name (&optional file)
     "Return the Java package implied by FILE, or nil."
     (when-let* ((file (or file buffer-file-name))
@@ -194,6 +230,8 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
                   js-ts-mode-hook
                   typescript-ts-mode-hook
                   tsx-ts-mode-hook
+                  html-ts-mode-hook
+                  json-ts-mode-hook
                   java-ts-mode-hook))
     (add-hook hook #'eglot-ensure))
   (add-hook 'java-ts-mode-hook #'neoarch-java-insert-package-header)

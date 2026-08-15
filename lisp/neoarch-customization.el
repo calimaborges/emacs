@@ -182,14 +182,19 @@ faces, which the theme otherwise pins to a fixed background."
             (setq c-basic-offset 4)
             (c-set-offset 'substatement-open 0)))
 
-;; JS/TS: treesit indent + Eglot format (:tabSize ← tab-width) share this.
+;; JS/TS/HTML/JSON/CSS: treesit indent + Eglot format (:tabSize ← tab-width) share this.
 (defvar neoarch-js-ts-indent 2
-  "Indent width for JS/TS editing and Eglot format-on-save.")
+  "Indent width for JS/TS/HTML/JSON/CSS editing and Eglot format-on-save.")
 (defun neoarch-js-ts-indent-setup ()
   (setq-local tab-width neoarch-js-ts-indent
               js-ts-mode-indent-offset neoarch-js-ts-indent
-              typescript-ts-mode-indent-offset neoarch-js-ts-indent))
-(dolist (hook '(js-ts-mode-hook typescript-ts-mode-hook tsx-ts-mode-hook))
+              typescript-ts-mode-indent-offset neoarch-js-ts-indent
+              html-ts-mode-indent-offset neoarch-js-ts-indent
+              json-ts-mode-indent-offset neoarch-js-ts-indent
+              css-indent-offset neoarch-js-ts-indent))
+(dolist (hook '(js-ts-mode-hook typescript-ts-mode-hook tsx-ts-mode-hook
+                                html-ts-mode-hook json-ts-mode-hook
+                                css-base-mode-hook))
   (add-hook hook #'neoarch-js-ts-indent-setup))
 
 ;; whitespace highlight
@@ -236,6 +241,21 @@ faces, which the theme otherwise pins to a fixed background."
     (when (eq major-mode 'compilation-mode)
       (ansi-color-apply-on-region compilation-filter-start (point-max))))
   (add-hook 'compilation-filter-hook 'my/colorize-compilation-buffer))
+
+(defun neoarch-exec-path-prepend (dir)
+  "Prepend DIR to `exec-path' and PATH when it exists."
+  (setq dir (directory-file-name (expand-file-name dir)))
+  (when (file-directory-p dir)
+    (setq exec-path (cons dir (delete dir exec-path)))
+    (let* ((path (or (getenv "PATH") ""))
+           (parts (delete dir (split-string path path-separator t))))
+      (setenv "PATH" (mapconcat #'identity (cons dir parts) path-separator)))))
+
+(dolist (dir '("/usr/local/bin"
+               "/opt/homebrew/bin"
+               "~/.local/bin"
+               "~/.local/share/mise/shims"))
+  (neoarch-exec-path-prepend dir))
 
 ;; macos tweeks
 ;; ============

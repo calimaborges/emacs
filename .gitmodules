@@ -96,3 +96,11 @@
 	path = site-lisp/f
 	url = https://github.com/rejeep/f.el.git
 	ignore = dirty
+[submodule "site-lisp/neocaml"]
+	path = site-lisp/neocaml
+	url = https://github.com/bbatsov/neocaml.git
+	ignore = dirty
+[submodule "site-lisp/ocaml-eglot"]
+	path = site-lisp/ocaml-eglot
+	url = https://github.com/tarides/ocaml-eglot.git
+	ignore = dirty

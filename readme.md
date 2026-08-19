@@ -57,6 +57,8 @@ emacs -Q --batch --eval "(setq neoarch-install-only t neoarch-byte-compile-warni
 ### Eglot
 
 ```bash
-mise use -g node@latest npm:typescript npm:vscode-langservers-extracted terraform-ls@latest java@26 vfox:tinnet/vfox-jdtls@latest pipx:rassumfrassum
+mise use -g node@latest npm:typescript npm:typescript-language-server npm:vscode-langservers-extracted terraform-ls@latest java@26 vfox:tinnet/vfox-jdtls@latest pipx:rassumfrassum opam
+mise install npm:typescript@6
+opam install ocaml-lsp-server ocamlformat
 ```
 

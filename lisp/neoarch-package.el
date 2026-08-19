@@ -16,7 +16,7 @@
     "with-editor/lisp" "transient/lisp" "magit/lisp"
     "vterm" "projectile" "perspective" "persp-projectile"
     "inheritenv" "mise" "md-ts-mode" "hl-todo"
-    "terraform-ts-mode" "wgrep" "rg" "htmlize"
+    "terraform-ts-mode" "neocaml" "ocaml-eglot" "wgrep" "rg" "htmlize"
     "s" "f" "password-store" "password-store-otp" "pass")
   "Relative directories under site-lisp to add to `load-path' and byte-compile.")
 (let ((site-lisp (expand-file-name "site-lisp" user-emacs-directory)))
@@ -37,7 +37,9 @@
         (java . ("https://github.com/tree-sitter/tree-sitter-java"))
         (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
         (hcl . ("https://github.com/tree-sitter-grammars/tree-sitter-hcl" "main" "src"))
-        (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))))
+        (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))
+        (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "v0.25.0-abi14" "grammars/ocaml/src"))
+        (ocaml-interface . ("https://github.com/tree-sitter/tree-sitter-ocaml" "v0.25.0-abi14" "grammars/interface/src"))))
 
 (defun neoarch-install-ts-grammars ()
   "Install missing ts grammars."
@@ -165,6 +167,12 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
   (add-hook 'prog-mode-hook #'hl-todo-mode)
 
   (require 'terraform-ts-mode)
+  (require 'neocaml)
+  (require 'neocaml-dune)
+  (require 'neocaml-opam)
+  (require 'neocaml-ocamllex)
+  (require 'neocaml-menhir)
+  (require 'ocaml-eglot)
 
   (defun neoarch-project-try-java-build (dir)
     "Return a Maven/Gradle project for DIR when a build file is found."
@@ -173,7 +181,32 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
                                '("pom.xml" "build.gradle" "build.gradle.kts"))))
       (cons 'transient (file-name-as-directory (expand-file-name root)))))
 
+  (defun neoarch-project-try-dune (dir)
+    "Return a Dune project for DIR when a dune-project file is found."
+    (when-let ((root (locate-dominating-file dir "dune-project")))
+      (cons 'transient (file-name-as-directory (expand-file-name root)))))
+
   (add-hook 'project-find-functions #'neoarch-project-try-java-build)
+  (add-hook 'project-find-functions #'neoarch-project-try-dune)
+
+  (defun neoarch-tsserver-js ()
+    "Return tsserver.js from a TypeScript 6.x mise install, or nil."
+    (let ((dir (expand-file-name
+                "npm-typescript/6"
+                (expand-file-name ".local/share/mise/installs" (getenv "HOME")))))
+      (when (file-directory-p dir)
+        (car (directory-files-recursively dir "\\`tsserver\\.js\\'")))))
+
+  (defun neoarch-eglot-typescript-contact (_interactive)
+    "Return a typescript-language-server contact with a tsserver fallback."
+    (let ((server (executable-find "typescript-language-server"))
+          (tsserver (neoarch-tsserver-js)))
+      (unless server
+        (error "typescript-language-server not found on exec-path"))
+      `(,server "--stdio"
+                ,@(when tsserver
+                    `(:initializationOptions
+                      (:tsserver (:fallbackPath ,tsserver)))))))
 
   (defun neoarch-eglot-jdtls-contact (_interactive &optional project)
     "Return a jdtls contact with a workspace unique to PROJECT's root."
@@ -190,6 +223,25 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
         (error "jdtls not found on exec-path"))
       (list jdtls "-data" data)))
 
+  (defun neoarch-ocamllsp ()
+    "Return the absolute path of ocamllsp, or nil."
+    (neoarch-opam-apply-env)
+    (or (executable-find "ocamllsp")
+        (when-let* ((opam (neoarch-opam-executable))
+                    (bin (ignore-errors
+                           (car (process-lines opam "var" "--readonly" "bin"))))
+                    (lsp (expand-file-name "ocamllsp" bin)))
+          (and (file-executable-p lsp) lsp))))
+
+  (defun neoarch-eglot-ocaml-contact (_interactive)
+    "Return an ocamllsp contact launched inside the current opam switch."
+    (let ((opam (neoarch-opam-executable)))
+      (unless opam
+        (error "opam not found on exec-path"))
+      (unless (neoarch-ocamllsp)
+        (error "ocamllsp not found; install it with: opam install ocaml-lsp-server"))
+      (list opam "exec" "--" "ocamllsp")))
+
   (require 'eglot)
   (with-eval-after-load 'eglot
     (setq eglot-connect-timeout 60)
@@ -198,13 +250,17 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
     (add-to-list 'eglot-server-programs
                  '(terraform-ts-mode . ("terraform-ls" "serve")))
     (add-to-list 'eglot-server-programs
-                 '((js-ts-mode typescript-ts-mode tsx-ts-mode)
-                   . ("tsc" "--lsp" "--stdio")))
+                 `((js-ts-mode typescript-ts-mode tsx-ts-mode)
+                   . ,#'neoarch-eglot-typescript-contact))
     (add-to-list 'eglot-server-programs
                  '(html-ts-mode . ("vscode-html-language-server" "--stdio")))
     (add-to-list 'eglot-server-programs
                  '(json-ts-mode . ("vscode-json-language-server" "--stdio"
-                                   :initializationOptions (:provideFormatter t)))))
+                                   :initializationOptions (:provideFormatter t))))
+    (add-to-list 'eglot-server-programs
+                 `(((neocaml-mode :language-id "ocaml")
+                    (neocaml-interface-mode :language-id "ocaml.interface"))
+                   . ,#'neoarch-eglot-ocaml-contact)))
   (defun neoarch-java-package-name (&optional file)
     "Return the Java package implied by FILE, or nil."
     (when-let* ((file (or file buffer-file-name))
@@ -232,12 +288,22 @@ Warnings are hidden unless `neoarch-byte-compile-warnings' is non-nil."
                   tsx-ts-mode-hook
                   html-ts-mode-hook
                   json-ts-mode-hook
-                  java-ts-mode-hook))
+                  java-ts-mode-hook
+                  neocaml-base-mode-hook))
     (add-hook hook #'eglot-ensure))
   (add-hook 'java-ts-mode-hook #'neoarch-java-insert-package-header)
+  (add-hook 'neocaml-base-mode-hook #'ocaml-eglot-mode)
   (add-hook 'terraform-ts-mode-hook
             (lambda ()
               (add-hook 'before-save-hook #'eglot-format-buffer nil t)))
+  (add-hook 'neocaml-base-mode-hook
+            (lambda ()
+              (setq-local tab-width 2)
+              (add-hook 'before-save-hook #'eglot-format-buffer nil t)
+              (add-to-list 'eglot-server-programs
+                           `(((neocaml-mode :language-id "ocaml")
+                              (neocaml-interface-mode :language-id "ocaml.interface"))
+                             . ,#'neoarch-eglot-ocaml-contact))))
 
   (require 'wgrep)
 

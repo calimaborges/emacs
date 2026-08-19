@@ -21,6 +21,70 @@
 ;; enables delete-selection-mode to replace marked text on type
 (delete-selection-mode 1)
 
+;; auto close pairs
+;; ================
+(electric-pair-mode 1)
+
+(defvar neoarch-html-void-elements
+  '("area" "base" "br" "col" "embed" "hr" "img" "input"
+    "link" "meta" "param" "source" "track" "wbr")
+  "HTML void elements that must not get an auto-inserted close tag.")
+
+(defun neoarch-html-electric-pair-inhibit (char)
+  "Inhibit pairing `<` so HTML tags are typed as `<div>`, not `<>`."
+  (or (eq char ?<)
+      (electric-pair-default-inhibit char)))
+
+(defun neoarch-html-start-tag-at-gt ()
+  "Return the `start_tag` node closed by the `>' before point, or nil."
+  (when-let* ((node (treesit-node-at (1- (point)) 'html))
+              (tag (if (equal (treesit-node-type node) "start_tag")
+                       node
+                     (treesit-node-parent node)))
+              ((equal (treesit-node-type tag) "start_tag"))
+              ((eq (treesit-node-end tag) (point))))
+    tag))
+
+(defun neoarch-html-start-tag-needs-closer-p (start-tag)
+  "Return non-nil when START-TAG has no matching `end_tag` yet."
+  (let ((element (treesit-node-parent start-tag)))
+    (not (and (equal (treesit-node-type element) "element")
+              (treesit-filter-child
+               element
+               (lambda (child)
+                 (equal (treesit-node-type child) "end_tag"))
+               t)))))
+
+(defun neoarch-html-insert-gt ()
+  "Insert `>' and a matching close tag after a non-void start tag."
+  (interactive)
+  (if (eq (char-after) ?>)
+      (forward-char)
+    (insert ">")
+    (when-let* ((tag (neoarch-html-start-tag-at-gt))
+                ((neoarch-html-start-tag-needs-closer-p tag))
+                (name-node (car (treesit-filter-child
+                                 tag
+                                 (lambda (child)
+                                   (equal (treesit-node-type child) "tag_name"))
+                                 t)))
+                (name (treesit-node-text name-node t)))
+      (unless (member (downcase name) neoarch-html-void-elements)
+        (save-excursion
+          (insert "</" name ">"))))))
+(put 'neoarch-html-insert-gt 'delete-selection t)
+
+(defun neoarch-html-setup-auto-close ()
+  "Enable tag pairing and `>' auto-close in HTML buffers."
+  (setq-local electric-pair-inhibit-predicate
+              #'neoarch-html-electric-pair-inhibit)
+  (setq-local sgml-quick-keys 'close)
+  (sgml-electric-tag-pair-mode 1))
+
+(add-hook 'html-ts-mode-hook #'neoarch-html-setup-auto-close)
+(with-eval-after-load 'html-ts-mode
+  (define-key html-ts-mode-map (kbd ">") #'neoarch-html-insert-gt))
+
 ;; disable welmcome screen
 (setq inhibit-startup-screen t)
 
@@ -119,10 +183,10 @@
 ;; dim the background of inactive (non-selected) windows
 ;; ====================================================
 (defface my/inactive-window-face
-  '((t (:background "#14162e")))
+  '((t (:background "#030412")))
   "Face used for the background of non-selected windows.
-Slightly grayer than the theme background so the active window
-stands out while staying perfectly readable.")
+Darker than the theme background so inactive windows recede and
+the selected one reads as the focused canvas.")
 
 (defvar-local my/inactive-window--cookies nil
   "Face-remap cookies for the filtered dim remaps in this buffer.")
@@ -142,7 +206,7 @@ faces, which the theme otherwise pins to a fixed background."
                 face
                 '(:filtered (:window my/window-dimmed t)
                             my/inactive-window-face)))
-             '(default line-number line-number-current-line))))))
+             '(default fringe line-number line-number-current-line))))))
 
 (defun my/dim-inactive-windows (&rest _)
   "Dim every window except the selected one, per window."
@@ -251,11 +315,40 @@ faces, which the theme otherwise pins to a fixed background."
            (parts (delete dir (split-string path path-separator t))))
       (setenv "PATH" (mapconcat #'identity (cons dir parts) path-separator)))))
 
+(defun neoarch-opam-executable ()
+  "Return the opam executable, searching buffer-local then global `exec-path'."
+  (or (executable-find "opam")
+      (let ((exec-path (default-value 'exec-path)))
+        (executable-find "opam"))))
+
+(defun neoarch-opam-apply-env ()
+  "Apply the current opam switch to `exec-path' and the process environment."
+  (when-let* ((opam (neoarch-opam-executable))
+              (env (ignore-errors
+                     (with-temp-buffer
+                       (when (eq 0 (call-process opam nil t nil
+                                                 "env" "--sexp" "--readonly"))
+                         (goto-char (point-min))
+                         (read (current-buffer)))))))
+    (dolist (binding env)
+      (unless (equal (car binding) "PATH")
+        (setenv (car binding) (cadr binding))))
+    (when-let ((prefix (cadr (assoc "OPAM_SWITCH_PREFIX" env))))
+      (neoarch-exec-path-prepend (expand-file-name "bin" prefix)))))
+
+(defun neoarch-mise-merge-opam-env ()
+  "Re-apply the opam switch after `mise-mode' replaces buffer-local PATH."
+  (when mise-mode
+    (neoarch-opam-apply-env)))
+
 (dolist (dir '("/usr/local/bin"
                "/opt/homebrew/bin"
                "~/.local/bin"
                "~/.local/share/mise/shims"))
   (neoarch-exec-path-prepend dir))
+(neoarch-opam-apply-env)
+(with-eval-after-load 'mise
+  (add-hook 'mise-mode-hook #'neoarch-mise-merge-opam-env))
 
 ;; macos tweeks
 ;; ============
